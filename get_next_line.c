@@ -51,6 +51,9 @@ int		get_next_line(const int fd, char **line)
 	static int	i;
 	char		*str;
 	static char *memory;
+	char		*help;
+	char		*sub;
+
 	if (fd < 0 || BUFF_SIZE < 1 || !line || fd >= 1025 || read(fd, buf, 0) < 0)
 		return (-1);
 	str = ft_strnew(0);
@@ -58,15 +61,26 @@ int		get_next_line(const int fd, char **line)
 		memory = ft_strnew(0);
 	if (ft_strlen(memory) != 0 && ft_howmuchspaces(memory) > 0 && i > 0)
 	{
+		help = ft_strnew(ft_strlen(memory));
+		help = ft_strsub(memory, 0, ft_strlen(memory));
+		ft_memdel((void**)&str);
 		str = ft_strsub(memory, 0, ft_strchrint(memory, '\n'));
-		memory = ft_strsub(memory, ft_strchrint(memory, '\n') + 1, ft_strlen(memory) - ft_strchrint(memory, '\n') + 1);
+		ft_memdel((void**)&memory);
+		memory = ft_strsub(help, ft_strchrint(help, '\n') + 1, ft_strlen(help) - ft_strchrint(help, '\n') + 1);
 		*line = ft_strsub(str, 0, ft_strlen(str));
+		ft_memdel((void**)&str);
+		ft_memdel((void**)&help);
 		return (1);
 	}
 	else
 	{
-		str = ft_strjoin(str, memory);
+		help = ft_strnew(ft_strlen(str));
+		help = ft_strcpy(help, str);
+		ft_memdel((void**)&str);
+		str = ft_strjoin(help, memory);
+		ft_memdel((void**)&memory);
 		memory = ft_strnew(0);
+		ft_memdel((void**)&help);
 	}
 	i++;
 	while ((file = read(fd, buf, BUFF_SIZE)) > 0)
@@ -74,13 +88,25 @@ int		get_next_line(const int fd, char **line)
 		buf[file] = '\0';
 		if (ft_howmuchspaces(buf) > 0)
 		{
-			str = ft_strjoin(str, ft_strsub(buf, 0, ft_strchrint(buf, '\n')));
+			help = ft_strnew(ft_strlen(str));
+			help = ft_strcpy(help, str);
+			ft_memdel((void**)&str);
+			str = ft_strjoin(help, sub = ft_strsub(buf, 0, ft_strchrint(buf, '\n')));
+			ft_memdel((void**)&memory);
 			memory = ft_strsub(buf, ft_strchrint(buf, '\n') + 1, ft_strlen(buf) - ft_strchrint(buf, '\n') + 1);
 			*line = ft_strsub(str, 0, ft_strlen(str));
+			ft_memdel((void**)&str);
+			ft_memdel((void**)&sub);
+			ft_memdel((void**)&help);
 			return (1);
 		}
-		str = ft_strjoin(str, buf);
+		help = ft_strnew(ft_strlen(str));
+		help = ft_strcpy(help, str);
+		ft_memdel((void**)&str);
+		str = ft_strjoin(help, buf);
+		ft_memdel((void**)&help);
 	}
 	*line = ft_strsub(str, 0, ft_strlen(str));
+	ft_memdel((void**)&str);
 	return (ft_strlen(*line) > 0 ? 1 : 0);
 }
